@@ -1,0 +1,8 @@
+{% extends "templates/base.html" %}
+
+{% block title %}{{ person.name }}{% endblock %}
+
+{% block content %}
+{{ person.name }}<br />
+joined {{ person.dt }}
+{% endblock %}

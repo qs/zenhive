@@ -1,0 +1,22 @@
+{% extends "templates/base.html" %}
+
+{% block title %}Main page{% endblock %}
+
+{% block content %}
+{{ project.title }}
+
+{% for t in project.tasks %}
+    <h3>{{ t.title }}</h3>
+    mentions: 
+    {% for pt in t.get_mentions() %}
+        {{ pt.title }}, 
+    {% endfor %}
+    <br />
+    mentioned: 
+    {% for st in t.get_mentioned() %}
+        {{ st.title }}, 
+    {% endfor %}
+
+{% endfor %}
+
+{% endblock %}

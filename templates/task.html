@@ -1,0 +1,109 @@
+{% extends "templates/base.html" %}
+
+{% block title %}{{ project.code }}-{{ task.key().id() }}{% endblock %}
+
+{% block content %}
+
+<h5><a href="/{{ project.code }}/">{{ project.title }}</a> / <a href="/{{ project.code }}-{{ task.key().id() }}/">{{ project.code }}-{{ task.key().id() }}</a> {% for pt in parent_tasks %} {% if loop.first %} part of {% endif %}
+    <a href="/{{ pt.project.code }}-{{ pt.key().id() }}/">{{ pt.project.code }}-{{ pt.key().id() }}</a>{% if not loop.last %}, {% endif %}
+    {% endfor %}
+</h5>
+
+<h3><span id="task-title" data-pk="task-title-{{ task.key().id() }}" data-toggle="#pencil"
+          data-original-title="Edit title"data-url="/_editinline/" data-placement="right">{{ task.title }}</span>
+    <a href="#" id="pencil"><i class="icon-pencil"></i></a></h3>
+
+<form action="" method="POST">
+<div class="btn-group">
+    <input type="submit" class="btn" name="sm-ass" id="sm-ass" value="Assign to ...">
+    <input type="submit" class="btn" name="sm-cc" id="sm-cc" value="Add to CC ...">
+    <input type="submit" class="btn" name="sm-selfcc" id="sm-selfcc" value="Add me to CC">
+    <input type="submit" class="btn" name="sm-selfass" id="sm-selfass" value="Assign to me">
+</div>
+<div class="btn-group">
+    {% if task.finish_dt %}
+        <input type="submit" class="btn" name="sm-unfinish" id="sm-unfinish" value="Reopen">
+    {% else %}
+        <input type="submit" class="btn" name="sm-finish" id="sm-finish" value="Done">
+    {% endif %}
+</div>
+</form>
+
+<div class="row">
+  <div class="span8 well">
+    <legend>TODO-list<a href="#" id="pencil3"><i class="icon-pencil"></i></a></legend>
+        <span id="task-todo" data-pk="task-todo-{{ task.key().id() }}" data-toggle="#pencil3" data-type="textarea"
+        data-original-title="Edit TODO-list" data-url="/_editinline/" data-placement="right" data-inputclass="span4"
+        data-value="{% for t in task.tasklist %} [{{ t.project.code }}-{{ t.key().id() }}] {{ t.title }}{% endfor %}">
+        <ul>
+        {% for t in task.tasklist %}
+            <li {% if t.finish_dt != None %}style="text-decoration: line-through"{% endif %}>
+                <a href="/{{ t.project.code }}-{{ t.key().id() }}/">
+                [{{ t.project.code }}-{{ t.key().id() }}] - {{ t.title }}</a>
+            {% if t.has_comments %}<i class="icon-comment"></i>{% endif %}
+            {% if t.has_list %}<i class="icon-list-alt"></i>{% endif %}
+            {% if t.assigner != None %}<i class="icon-user" title="{{ t.assigner.name }}"></i>{% endif %}
+            {% if t.finish_dt != None %}<i class="icon-ok" title="{{ t.finish_dt.strftime('%d.%m.%Y %H:%M') }}"></i>{% endif %}
+            </li>
+
+        {% endfor %}
+        </ul></span>
+
+    <legend>Comments</legend>
+        <dl>
+          {% for c in task.comments %}
+            {% if c.author.name==task.reporter.name %}
+            <dt class="text-error">{{ c.author.name }}:</dt>
+            {% elif c.author.name==task.assigner.name %}
+            <dt class="text-success">{{ c.author.name }}:</dt>
+            {% else %}
+            <dt>{{ c.author.name }}</dt>
+            {% endif %}
+            <dd>{{ c.content }}</dd>
+            <hr />
+          {% endfor %}
+        </dl>
+    
+<form class="form-horizontal" method="POST" action="">
+<fieldset>
+<div class="control-group">
+    <textarea id="comment" name="comment" class="span7" rows="3" placeholder="Here your comment field. Please, don't flood!"></textarea>
+</div>
+<div class="control-group">
+    <input type="submit" id="sm-comment" name="sm-comment" class="btn btn-primary span2" value="Post">
+</div>
+</fieldset>
+</form>
+    
+  </div>
+  <div class="span3 well">
+    <legend>Task info</legend>
+    <ul>
+        <li>Created: {{ task.dt.strftime('%d.%m.%Y %H:%M') }} </li>
+        <li>Reporter: <a href="/p/{{ task.reporter.name }}/" id="per-link">{{ task.reporter.name }}</a></li>
+        <li>Assigner:
+            <a href="/p/{{ task.assigner.name }}/" id="ass-link">
+                <span id="task-ass" data-pk="task-ass-{{ task.key().id() }}" data-toggle="#pencil2" data-type="select"
+                    data-original-title="Edit assigner" data-url="/_editinline/" data-placement="left" data-source="/_persons/">
+                        {{ task.assigner.name }}</span></a>
+                <a href="#" id="pencil2"><i class="icon-pencil"></i></a>
+        </li>
+        {% if task.finish_dt %}<li><strong>Done</strong> at {{ task.dt.strftime('%d.%m.%Y %H:%M') }} by <a href="/p/{{ task.assigner.name }}/">{{ task.assigner.name }}</a></li>{% endif %}
+    </ul>
+  </div>
+</div>
+
+
+<script type="text/javascript" charset="utf-8">
+
+$('#task-title').editable();
+$('#task-ass').editable();
+$('#task-ass').on('update', function(e, editable) {
+    $("#ass-link").attr("href", "/p/" + editable.value + '/')
+});
+$('#task-todo').editable();
+
+$('#tasklist').load('/_tasklist?parent_task={{ project.code }}-{{ task.key().id() }}');  //task list
+</script>
+
+{% endblock %}
