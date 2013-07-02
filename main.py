@@ -114,6 +114,25 @@ class TaskHandler(BaseHandler):
 
 class MainHandler(BaseHandler):
     def get(self):
+		self.render('main')
+
+    def post(self):
+        if self.request.get('sm-project-new'):  # new project
+            get_agrs = ['title', 'code', 'mission', 'content']
+            pargs = {}
+            for arg in get_agrs:
+                pargs[arg] = escape(self.request.get(arg))
+            pargs['leader'] = self.person
+            project = Project(**pargs)
+            if project.is_valid():
+                project.put()
+                self.redirect('/%s/' % project.code)
+        else:
+            self.redirect('/')
+
+
+class DevHandler(BaseHandler):
+    def get(self):
         pargs = {
             'code': 'LOL',
             'title': 'The title',
@@ -155,5 +174,6 @@ app = webapp2.WSGIApplication([
     ('/p/edit/', PersonEditHandler), # edit personal profile, also register for first visit
     ('/f/', FilterHandler), # universal filter with ?lol=123&...
     ('/_ajax/', AjaxHandler), # ajax actions ?lol=123&...
+    ('/dev/', DevHandler), # ajax actions ?lol=123&...
     
 ], debug=True)
