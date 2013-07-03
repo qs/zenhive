@@ -1,0 +1,75 @@
+{% extends "templates/base.html" %}
+
+{% block title %}Project edit{% endblock %}
+
+{% block content %}
+
+<h2><small>Editing: </small> {{ project.code }}: {{ project.title }}</h2>
+
+<form class="form-horizontal" method="POST" action="">
+<fieldset>
+<legend>Project info</legend>
+<div class="control-group">
+  <label class="control-label">Title:</label>
+  <div class="controls">
+    <input id="title" name="title" type="text" class="span6" class="input-xlarge" required="" value="{{ project.title }}">
+  </div>
+</div>
+<div class="control-group">
+  <label class="control-label">Code:</label>
+  <div class="controls">
+    <input id="code" name="code" type="text" class="span6" placeholder="PROJ" class="input-xlarge" required="" value="{{ project.code }}">
+  </div>
+</div>
+<div class="control-group">
+  <label class="control-label">Mission:</label>
+  <div class="controls">
+    <input id="mission" name="mission" type="text" class="span6" placeholder="to change the world" class="input-xlarge" required="" value="{{ project.mission }}">
+  </div>
+</div>
+<div class="control-group">
+  <label class="control-label">Description:</label>
+  <div class="controls">                     
+    <textarea id="content" name="content" class="span6" rows="5">{{ project.content }}</textarea>
+  </div>
+</div>
+<div class="control-group">
+  <label class="control-label">Members:</label>
+  <div class="controls">                     
+    <ul id="array_member_handler" class="span6"></ul>
+  </div>
+</div>
+<div class="control-group">
+  <label class="control-label">Tags:</label>
+  <div class="controls">                     
+    <ul id="array_tag_handler" class="span6"></ul>
+  </div>
+</div>
+<div class="control-group">
+  <label class="control-label"></label>
+  <div class="controls">
+    <input type="submit" id="sm-project-edit" name="sm-project-edit" class="btn btn-primary" value="Update project">
+  </div>
+</div>
+</fieldset>
+</form>
+
+<hr />
+
+<script type="text/javascript" charset="utf-8">
+	
+//  http://ioncache.github.io/Tag-Handler/
+	
+$("#array_member_handler").tagHandler({
+	assignedTags: [ 'Ololosha', 'Perl', 'PHP' ],
+	availableTags: [ 'C', 'C++', 'C#', 'Java', 'Perl', 'PHP', 'Python' ],
+	autocomplete: true
+});
+$("#array_tag_handler").tagHandler({
+	assignedTags: [ 'C', 'Perl', 'PHP' ],
+	availableTags: [ 'C', 'C++', 'C#', 'Java', 'Perl', 'PHP', 'Python' ],
+	autocomplete: true
+});
+</script>
+
+{% endblock %}

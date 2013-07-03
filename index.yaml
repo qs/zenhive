@@ -15,6 +15,29 @@ indexes:
   - name: task
   - name: dt
 
+- kind: Project
+  properties:
+  - name: leader
+  - name: members
+  - name: title
+
+- kind: Project
+  properties:
+  - name: leader
+  - name: title
+
+- kind: Project
+  properties:
+  - name: members
+  - name: title
+
+- kind: Task
+  properties:
+  - name: assigner
+  - name: finish_dt
+  - name: dt
+    direction: desc
+
 - kind: Task
   properties:
   - name: reporter

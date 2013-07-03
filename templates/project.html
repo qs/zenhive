@@ -8,17 +8,18 @@
 <div class="row">
   <div class="span8 well">
   <legend>Open tasks</legend>
-    <div  id="tasklist">loading tasks...</div>
+    <div  id="tasklist">
+    
+    </div>
   </div>
   <div class="span3 well">
     <legend>Project info
         {% if person.name == project.leader.name %}
-        <a class="btn btn-mini" href="edit"><i class="icon-cog"></i></a>
+        <a class="btn btn-mini" href="edit/"><i class="icon-cog"></i>Edit</a>
         {% endif %}
     </legend>
     <ul>
         <li>Started {{ project.dt.strftime('%d.%m.%Y') }}</li>
-        <li>Status: <b class="editable_select" id="select_1" style="display: inline">{{ proj_status[project.status] }}</b></li>
         <li>Leader: <a href="/p/{{ project.leader.name }}/">{{ project.leader.name }}</a></li>
     </ul>
     <legend>Project crew</legend>
@@ -45,7 +46,7 @@
   </div>
 </div>
 <div class="control-group">
-  <label class="control-label">ToDo list (optional):</label>
+  <label class="control-label">ToDo list / subtasks (optional):</label>
   <div class="controls">                     
     <textarea id="todo" name="todo" class="span6" rows="6" placeholder="Every task with a new line. They will be converted to subtasks. Use [PROJ-123456] to insert task that exists."></textarea>
   </div>
@@ -67,22 +68,5 @@ $('#addpb').click(function() { //new task form
   $('#addpf').toggle('fast');
 });
 
-
-$('#tasklist').load('/_tasklist?project={{ project.code }}');  //task list
-$('#pplist').load('/_tasklist?project={{ project.code }}');  //project person list
-
-$(function() { //project status inline change
-    $(".editable_select").editable("http://www.appelsiini.net/projects/jeditable/php/save.php", {
-        indicator : '<img src="img/indicator.gif">',
-        tooltip: '{{ project.status }}',
-        data   : "{'Lorem ipsum':'Lorem ipsum','Ipsum dolor':'Ipsum dolor','Dolor sit':'Dolor sit'}",
-        type   : "select",
-        submit : "OK",
-        style  : "inherit",
-        submitdata : function() {
-            return {id : 2};
-        }
-    });
-});
 </script>
 {% endblock %}

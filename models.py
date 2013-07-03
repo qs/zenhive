@@ -15,13 +15,16 @@ class Person(db.Model):
         return Tag.gql("WHERE __key__ IN :1 ORDER BY name", self.tags)
 
     def get_membered(self):
-        return Projects.gql("WHERE members IN :1 OR leader = :2 ORDER BY title", self.key(), self)
+        return Project.gql("WHERE members = :1 ORDER BY title", self.key())
+
+    def get_lead(self):
+        return Project.gql("WHERE leader = :1 ORDER BY title", self)
 
     def get_reported(self):
-        return Task.gql("WHERE reporter IN :1 ORDER BY dt DESC", self.key())
+        return Task.gql("WHERE reporter = :1 AND finish_dt = NULL ORDER BY dt DESC", self.key())
 
     def get_assigned(self):
-        return Task.gql("WHERE assigner IN :1 ORDER BY dt DESC", self.key())
+        return Task.gql("WHERE assigner = :1 AND finish_dt = NULL ORDER BY dt DESC", self.key())
 
     
 class Project(db.Model):
@@ -36,6 +39,15 @@ class Project(db.Model):
     content = db.TextProperty()
     members = db.ListProperty(db.Key)
     tags = db.ListProperty(db.Key)
+
+    def is_valid(self):
+        self.code = self.code.upper()
+        if not re.match(r'^[A-Z]+$', self.code):
+            raise Exception('Project code must be ^[A-Z]+$')
+        entity = Project.all(keys_only=True).filter('code', self.code).get()
+        if entity:
+            raise Exception('Project code must be unique')
+        return True
     
     @property
     def tasks(self):

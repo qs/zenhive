@@ -29,6 +29,22 @@ class BaseHandler(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(data))
 
+    def get_project(self, project_code):
+        project_code = escape(project_code)
+        project = Project.gql("WHERE code = :1", project_code).get()
+        return project
+
+    def get_person(self, name):
+        name = escape(name)
+        person = Person.gql("WHERE name = :1", name).get()
+        return person
+
+    def get_task(self, task_eid, project_code):
+        task_eid = escape(task_eid)
+        project = self.get_project(project_code)
+        task = Task.gql("WHERE task_eid = :1 AND project = :2", task_eid, project).get()
+        return task
+
 
 class ProjectHandler(BaseHandler):
     def get(self, project_code):
@@ -114,6 +130,7 @@ class TaskHandler(BaseHandler):
 
 class MainHandler(BaseHandler):
     def get(self):
+		#tvals = {'projects': self.person.get_membered(), }
 		self.render('main')
 
     def post(self):

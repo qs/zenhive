@@ -4,27 +4,26 @@
 
 {% block content %}
 
+<h3>My projects</h3>
+<ul>
+{% for p in person.get_lead() %}
+    <li><a href="/{{ p.code }}/">{{ p.code }} - {{ p.title }}</a> | {{ p.mission }} | leader</li>
+{% endfor %}
+{% for p in person.get_membered() %}
+    <li><a href="/{{ p.code }}/">{{ p.code }} - {{ p.title }}</a> | {{ p.mission }}</li>
+{% endfor %}
+</ul>
+
 <h3>My tasks</h3>
 <ul>
-    {% for t in tasks %}{% if t.assigner.key() == person.key() %}
-    <li><a href="/{{ t.project.code }}-{{ t.key().id() }}/">{{ t.project.code }}-{{ t.key().id() }}: {{ t.title }}</a></li>
-    {% endif %}{% endfor %}
+    {% for t in person.get_assigned() %}
+    <li><a href="/{{ t.project.code }}-{{ t.task_eid }}/">
+		{{ t.project.code }}-{{ t.task_eid }}: {{ t.title }}</a></li>
+    {% endfor %}
 </ul>
 <ul class="breadcrumb">
   <li><a href="#">My finished tasks</a> <span class="divider"> | </span></li>
   <li><a href="#">Reported by me</a> <span class="divider"> | </span></li>
-</ul>
-
-<h3>My projects</h3>
-<ul>
-{% for p in projects %}{% if p.leader.key() == person.key() %}
-    <li><a href="/{{ p.code }}/">{{ p.title }} - {{ p.code }}</a> | {{ p.mission }}</a></li>
-{% endif %}{% endfor %}
-</ul>
-
-<ul class="breadcrumb">
-  <li><a href="#">Other projects</a> <span class="divider"> | </span></li>
-  <li><a href="#">My closed projects</a> <span class="divider"> | </span></li>
 </ul>
 
 
@@ -61,7 +60,7 @@
 <div class="control-group">
   <label class="control-label"></label>
   <div class="controls">
-    <input type="submit" id="sm-newproj" name="sm-newproj" class="btn btn-primary" value="Start project">
+    <input type="submit" id="sm-project-new" name="sm-project-new" class="btn btn-primary" value="Start project">
   </div>
 </div>
 </fieldset>
