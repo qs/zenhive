@@ -103,21 +103,39 @@ class PersonEditHandler(BaseHandler):
 
 class FilterHandler(BaseHandler):
     def get(self):
-		if self.request.arguments():
-			self.response.out.write(self.request.arguments())
-			self.response.out.write('<br />')
-			for i in self.request.arguments():
-				self.response.out.write(self.request.get(i))
-				self.response.out.write('<br />')
+        if self.request.arguments():
+            self.response.out.write(self.request.arguments())
+            self.response.out.write('<br />')
+            for i in self.request.arguments():
+                self.response.out.write(self.request.get(i))
+                self.response.out.write('<br />')
         #self.render('results', tvals)
 
 
 class AjaxHandler(BaseHandler):
     def get(self):
-        self.response.out.write('lol')
+        if self.request.get('action') == 'get_members':
+            project = self.get_project(self.request.get('project'))
+            persons = [p.name for p in project.get_members()]
+            self.write_json({'assignedTags': persons})
+            #self.write_json(persons)
+        elif self.request.get('action') == 'get_persons':
+            persons = [p.name for p in Person.all()]
+            self.write_json({'availableTags': persons})
         
     def post(self):
-        self.response.out.write('lol')
+        if self.request.get('action') == 'set_persons':
+            project = self.get_project(self.request.get('project'))
+            print self.request.arguments(), self.request.get_all('tags[]')
+            st = set([self.get_person(p).key() for p in self.request.get_all('tags[]')])
+            project.members = list(st)
+            project.save()
+        '''
+        print self.request.arguments()
+        print self.request.get('action'), self.request.get('tags[]'), self.request.get('project')
+        #self.write_json({'status': "ok"})
+        #self.response.out.write('return
+        '''
 
 
 class TaskHandler(BaseHandler):
@@ -130,8 +148,8 @@ class TaskHandler(BaseHandler):
 
 class MainHandler(BaseHandler):
     def get(self):
-		#tvals = {'projects': self.person.get_membered(), }
-		self.render('main')
+        #tvals = {'projects': self.person.get_membered(), }
+        self.render('main')
 
     def post(self):
         if self.request.get('sm-project-new'):  # new project

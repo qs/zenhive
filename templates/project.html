@@ -23,7 +23,9 @@
         <li>Leader: <a href="/p/{{ project.leader.name }}/">{{ project.leader.name }}</a></li>
     </ul>
     <legend>Project crew</legend>
-    ajax project persons
+    <ul id="array_member_handler"></ul>
+    <legend>Tags</legend>
+    <ul id="array_tag_handler"></ul>
   </div>
 </div>
 
@@ -67,6 +69,29 @@
 $('#addpb').click(function() { //new task form
   $('#addpf').toggle('fast');
 });
+	
+//  http://ioncache.github.io/Tag-Handler/
+//  GET /_ajax/?action=get_persons&q=test HTTP/1.1" 200 2
 
+$("#array_member_handler").tagHandler({
+    getData: { action: 'get_persons', project: '{{ project.code }}'},
+    getURL: '/_ajax/',
+    updateData: { action: 'set_persons', project: '{{ project.code }}'},
+    updateURL: '/_ajax/',
+    assignedTags: [ {% for p in project.get_members() %} "{{ p.name }}"{% if not loop.last%},{% endif %} {% endfor %} ],
+    autocomplete: true,
+    initLoad: false,
+    minChars: 2,
+    allowAdd: false,
+    autoUpdate: true
+});
+
+$("#array_tag_handler").tagHandler({
+	assignedTags: [ "Python" ],
+	availableTags: [ "C++" ],
+	autocomplete: true,
+	minChars: 2,
+});
 </script>
+
 {% endblock %}

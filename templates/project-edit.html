@@ -59,16 +59,22 @@
 <script type="text/javascript" charset="utf-8">
 	
 //  http://ioncache.github.io/Tag-Handler/
-	
+//  GET /_ajax/?action=get_persons&q=test HTTP/1.1" 200 2
+
 $("#array_member_handler").tagHandler({
-	assignedTags: [ 'Ololosha', 'Perl', 'PHP' ],
-	availableTags: [ 'C', 'C++', 'C#', 'Java', 'Perl', 'PHP', 'Python' ],
-	autocomplete: true
+    getData: { action: 'get_persons', project: '{{ project.code }}'},
+    getURL: '/_ajax/',
+    autocomplete: true,
+    initLoad: false,
+    minChars: 2,
+    allowAdd: false
 });
+
 $("#array_tag_handler").tagHandler({
-	assignedTags: [ 'C', 'Perl', 'PHP' ],
-	availableTags: [ 'C', 'C++', 'C#', 'Java', 'Perl', 'PHP', 'Python' ],
-	autocomplete: true
+	assignedTags: [ ],
+	availableTags: [ "C++" ],
+	autocomplete: true,
+	minChars: 2,
 });
 </script>
 
