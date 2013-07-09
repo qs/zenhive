@@ -114,28 +114,31 @@ class FilterHandler(BaseHandler):
 
 class AjaxHandler(BaseHandler):
     def get(self):
-        if self.request.get('action') == 'get_members':
-            project = self.get_project(self.request.get('project'))
-            persons = [p.name for p in project.get_members()]
-            self.write_json({'assignedTags': persons})
-            #self.write_json(persons)
-        elif self.request.get('action') == 'get_persons':
-            persons = [p.name for p in Person.all()]
+        if self.request.get('action') == 'get_persons':
+            persons = [p.name for p in Person.all() if p.name.find(self.request.get('q')) > -1]
             self.write_json({'availableTags': persons})
-        
+        elif self.request.get('action') == 'get_tags':
+            tags = [t.name for t in Tag.all() if t.name.find(self.request.get('q')) > -1]
+            self.write_json({'availableTags': tags})
     def post(self):
         if self.request.get('action') == 'set_persons':
             project = self.get_project(self.request.get('project'))
-            print self.request.arguments(), self.request.get_all('tags[]')
             st = set([self.get_person(p).key() for p in self.request.get_all('tags[]')])
             project.members = list(st)
             project.save()
-        '''
-        print self.request.arguments()
-        print self.request.get('action'), self.request.get('tags[]'), self.request.get('project')
-        #self.write_json({'status': "ok"})
-        #self.response.out.write('return
-        '''
+        elif self.request.get('action') == 'set_tags':
+            project = self.get_project(self.request.get('project'))
+            st = set()
+            for t in self.request.get_all('tags[]'):
+                tag = self.get_tag(t)
+                if tag:
+					st.add(tag.key())
+				else:
+					tag = Tag(name=t)
+					tag.save()
+					st.add(tag.key())
+            project.tags = list(st)
+            project.save()
 
 
 class TaskHandler(BaseHandler):
@@ -168,6 +171,10 @@ class MainHandler(BaseHandler):
 
 class DevHandler(BaseHandler):
     def get(self):
+        p = self.get_person('g43wevg4')
+        self.response.out.write(p)
+        self.response.out.write(p.key())
+        '''
         pargs = {
             'code': 'LOL',
             'title': 'The title',
@@ -197,7 +204,7 @@ class DevHandler(BaseHandler):
             stask.put()
             
         tvals = {'project': project}
-        self.render('dev', tvals)
+        self.render('dev', tvals)'''
 
 
 app = webapp2.WSGIApplication([
@@ -209,6 +216,6 @@ app = webapp2.WSGIApplication([
     ('/p/edit/', PersonEditHandler), # edit personal profile, also register for first visit
     ('/f/', FilterHandler), # universal filter with ?lol=123&...
     ('/_ajax/', AjaxHandler), # ajax actions ?lol=123&...
-    ('/dev/', DevHandler), # ajax actions ?lol=123&...
+    ('/_dev/', DevHandler), # ajax actions ?lol=123&...
     
 ], debug=True)

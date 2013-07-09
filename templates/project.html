@@ -87,10 +87,15 @@ $("#array_member_handler").tagHandler({
 });
 
 $("#array_tag_handler").tagHandler({
-	assignedTags: [ "Python" ],
-	availableTags: [ "C++" ],
-	autocomplete: true,
-	minChars: 2,
+    getData: { action: 'get_tags', project: '{{ project.code }}'},
+    getURL: '/_ajax/',
+    updateData: { action: 'set_tags', project: '{{ project.code }}'},
+    updateURL: '/_ajax/',
+    assignedTags: [ {% for t in project.get_tags() %} "{{ t.name }}"{% if not loop.last%},{% endif %} {% endfor %} ],
+    autocomplete: true,
+    initLoad: false,
+    minChars: 2,
+    autoUpdate: true
 });
 </script>
 
