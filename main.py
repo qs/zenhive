@@ -29,6 +29,11 @@ class BaseHandler(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(data))
 
+    def get_tag(self, t):
+        t = escape(t).lower()
+        tag = Tag.gql("WHERE name = :1", t).get()
+        return tag
+    
     def get_project(self, project_code):
         project_code = escape(project_code)
         project = Project.gql("WHERE code = :1", project_code).get()
@@ -132,11 +137,12 @@ class AjaxHandler(BaseHandler):
             for t in self.request.get_all('tags[]'):
                 tag = self.get_tag(t)
                 if tag:
-					st.add(tag.key())
-				else:
-					tag = Tag(name=t)
-					tag.save()
-					st.add(tag.key())
+                    st.add(tag.key())
+                else:
+                    t = escape(t).lower()
+                    tag = Tag(name=t)
+                    tag.save()
+                    st.add(tag.key())
             project.tags = list(st)
             project.save()
 

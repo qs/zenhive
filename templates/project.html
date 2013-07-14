@@ -11,6 +11,37 @@
     <div  id="tasklist">
     
     </div>
+    
+    
+<button class="btn" id="addpb">New task</button>
+<span style="display: none" id="addpf">
+
+<form class="form-horizontal" method="POST" action="">
+<fieldset>
+<legend>New task</legend>
+<div class="control-group">
+  <label class="control-label">Title:</label>
+  <div class="controls">
+    <input id="title" name="title" type="text" class="span5" placeholder="Stop procrastinating!" class="input-xlarge" required="">
+  </div>
+</div>
+<div class="control-group">
+  <label class="control-label">Description (optional):</label>
+  <div class="controls">                     
+    <textarea id="comment" name="comment" class="span5" rows="3" placeholder="Use lists started with [*] for making subtasks"></textarea>
+  </div>
+</div>
+<div class="control-group">
+  <label class="control-label"></label>
+  <div class="controls">
+    <input type="submit" id="sm-newtask" name="sm-newtask" class="btn btn-primary" value="Add task">
+  </div>
+</div>
+</fieldset>
+</form>
+<hr /></span>
+    
+    
   </div>
   <div class="span3 well">
     <legend>Project info
@@ -29,39 +60,7 @@
   </div>
 </div>
 
-<button class="btn" id="addpb">New task</button>
-<span style="display: none" id="addpf">
 
-<form class="form-horizontal" method="POST" action="">
-<fieldset>
-<legend>New task(s)</legend>
-<div class="control-group">
-  <label class="control-label">Title:</label>
-  <div class="controls">
-    <input id="title" name="title" type="text" class="span6" placeholder="Stop procrastinating!" class="input-xlarge" required="">
-  </div>
-</div>
-<div class="control-group">
-  <label class="control-label">Description (optional):</label>
-  <div class="controls">                     
-    <textarea id="comment" name="comment" class="span6" rows="3" placeholder="Also your first comment"></textarea>
-  </div>
-</div>
-<div class="control-group">
-  <label class="control-label">ToDo list / subtasks (optional):</label>
-  <div class="controls">                     
-    <textarea id="todo" name="todo" class="span6" rows="6" placeholder="Every task with a new line. They will be converted to subtasks. Use [PROJ-123456] to insert task that exists."></textarea>
-  </div>
-</div>
-<div class="control-group">
-  <label class="control-label"></label>
-  <div class="controls">
-    <input type="submit" id="sm-newtask" name="sm-newtask" class="btn btn-primary" value="Add task">
-  </div>
-</div>
-</fieldset>
-</form>
-<hr /></span>
 
 
 <script type="text/javascript" charset="utf-8">
@@ -97,6 +96,24 @@ $("#array_tag_handler").tagHandler({
     minChars: 2,
     autoUpdate: true
 });
+
+
+$("#array_member_handler li.tagItem").hover(
+  function () {
+    $(this).append($("<a href='/p/" + $(this).html() + "'> <i class='icon-info-sign'></i></a>"));
+  },
+  function () {
+    $(this).find("a:last").remove();
+  }
+);
+$("#array_tag_handler li.tagItem").hover(
+  function () {
+    $(this).append($("<a href='/f/?tag=" + $(this).html() + "'> <i class='icon-search'></i></a>"));
+  },
+  function () {
+    $(this).find("a:last").remove();
+  }
+);
 </script>
 
 {% endblock %}
