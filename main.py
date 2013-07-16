@@ -64,14 +64,17 @@ class ProjectHandler(BaseHandler):
                 'project': self.get_project(project_code),
                 'task_eid': project.task_cntr,
                 'title': escape(self.request.get('title')),
+                'content': escape(self.request.get('content')),
                 'reporter': self.person,
             }
             task = Task(**pargs)
+            task.update_meta()
             task.put()
             project.task_cntr += 1
             project.save()
             self.redirect('/%s-%s/' % (project.code, task.task_eid))
-        self.redirect('/%s/' % project.code)
+        else:
+        	self.redirect('/%s/' % project.code)
 
 
 class ProjectEditHandler(BaseHandler):
@@ -149,6 +152,8 @@ class AjaxHandler(BaseHandler):
 
 class TaskHandler(BaseHandler):
     def get(self, project_code, task_id):
+        task = self.get_task(task_id, project_code)
+        tvals = {'task': task}
         self.render('project', tvals)
         
     def post(self, project_code):

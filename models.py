@@ -96,9 +96,16 @@ class Task(db.Model):
     def get_mentioned(self):
         return Task.gql("WHERE mention_tasks = :1", self)
         
-    def save_task(self):
-        mens = re.findall(ur'[A-Z]+\-([0-9]+)', self.content)
-        tasks = Task.get(db.Key.from_path('Task', [int(i) for i in mens]))
+    def update_meta(self):
+        mens = re.findall(ur'([A-Z]+)\-([0-9]+)', self.content)
+        for pcode, eid in mens:
+            project = Project.gql("WHERE code = :1", pcode)
+            task_id = db.GqlQuery("""SELECT __key__ FROM Task 
+                    WHERE task_eid = :task_eid
+                    AND project = :project""", task_eid=eid, project=project).get()
+            if task_id not in self.mention_tasks:
+                self.mention_tasks.append(task_id)
+        
         
         
 class Tag(db.Model):
