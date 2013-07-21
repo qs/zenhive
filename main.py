@@ -45,9 +45,9 @@ class BaseHandler(webapp2.RequestHandler):
         return person
 
     def get_task(self, task_eid, project_code):
-        task_eid = escape(task_eid)
+        task_eid = int(escape(task_eid))
         project = self.get_project(project_code)
-        task = Task.gql("WHERE task_eid = :1 AND project = :2", task_eid, project).get()
+        task = Task.gql("WHERE task_eid = :1 AND project = :2", task_eid, project.key()).get()
         return task
 
 
@@ -151,10 +151,10 @@ class AjaxHandler(BaseHandler):
 
 
 class TaskHandler(BaseHandler):
-    def get(self, project_code, task_id):
-        task = self.get_task(task_id, project_code)
+    def get(self, project_code, task_eid):
+        task = self.get_task(task_eid, project_code)
         tvals = {'task': task}
-        self.render('project', tvals)
+        self.render('task', tvals)
         
     def post(self, project_code):
         self.redirect('/%s/' % project.code)
