@@ -9,9 +9,20 @@
   <div class="span8 well">
   <legend>Open tasks</legend>
     <div  id="tasklist">
-    
+    	<ul>
+			{% for t in project.tasks %}
+			<li><a href="/{{ project.code }}-{{ t.task_eid }}/">
+				{{ project.code }}-{{ t.task_eid }}: {{ t.title }}</a>
+				{% if t.assigner %} t.assigner.name {% endif %}
+				{% if t.due_dt %} t.due_dt..strftime('%d.%m.%Y') {% endif %}
+				</li>
+			{% endfor %}
+		</ul>
     </div>
-    
+    <ul class="breadcrumb">
+  		<li><a href="#">Unasigned tasks</a> <span class="divider"> | </span></li>
+  		<li><a href="#">Overdue tasks</a> <span class="divider"> | </span></li>
+	</ul>
     
 <button class="btn" id="addpb">New task</button>
 <span style="display: none" id="addpf">
