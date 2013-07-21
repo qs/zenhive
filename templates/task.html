@@ -1,52 +1,34 @@
 {% extends "templates/base.html" %}
 
-{% block title %}{{ task.project.title }} -> {{ task.project.code }}-{{ task.task_eid }}{% endblock %}
+{% block title %}{{ task.project.title }}: {{ task.project.code }}-{{ task.task_eid }}{% endblock %}
 
 {% block content %}
 
 <h5>
-    {{ task.project.title }} -> {{ task.project.code }}-{{ task.task_eid }}
+    <a href="/{{ task.project.code }}/">{{ task.project.title }}</a>: {{ task.project.code }}-{{ task.task_eid }}
 </h5>
 
-<h3><span id="task-title" data-pk="task-title-{{ task.key().id() }}" data-toggle="#pencil"
-          data-original-title="Edit title"data-url="/_editinline/" data-placement="right">{{ task.title }}</span>
-    <a href="#" id="pencil"><i class="icon-pencil"></i></a></h3>
-
-<form action="" method="POST">
-<div class="btn-group">
-    <input type="submit" class="btn" name="sm-ass" id="sm-ass" value="Assign to ...">
-    <input type="submit" class="btn" name="sm-cc" id="sm-cc" value="Add to CC ...">
-    <input type="submit" class="btn" name="sm-selfcc" id="sm-selfcc" value="Add me to CC">
-    <input type="submit" class="btn" name="sm-selfass" id="sm-selfass" value="Assign to me">
-</div>
-<div class="btn-group">
+<form class="form-inline">
+<h3>{{ task.title }}
     {% if task.finish_dt %}
         <input type="submit" class="btn" name="sm-unfinish" id="sm-unfinish" value="Reopen">
     {% else %}
         <input type="submit" class="btn" name="sm-finish" id="sm-finish" value="Done">
     {% endif %}
-</div>
+</h3>
 </form>
 
 <div class="row">
   <div class="span8 well">
-    <legend>TODO-list<a href="#" id="pencil3"><i class="icon-pencil"></i></a></legend>
-
-    <legend>Comments</legend>
-        <dl>
-        </dl>
-    
-<form class="form-horizontal" method="POST" action="">
-<fieldset>
-<div class="control-group">
-    <textarea id="comment" name="comment" class="span7" rows="3" placeholder="Here your comment field. Please, don't flood!"></textarea>
-</div>
-<div class="control-group">
-    <input type="submit" id="sm-comment" name="sm-comment" class="btn btn-primary span2" value="Post">
-</div>
-</fieldset>
-</form>
-    
+    <div>{{ task.content }}</div>
+    <hr />
+    <ul>{% for pt in task.get_mentions() %}
+        <li><a href="/{{ pt.project.code }}/{{ pt.task_eid }}/">{{ pt.title }}</li>
+    {% endfor %}</ul>
+    <hr />
+    <ul>{% for pt in task.get_mentioned() %}
+        <li><a href="/{{ pt.project.code }}/{{ pt.task_eid }}/">{{ pt.title }}</li>
+    {% endfor %}</ul>
   </div>
   <div class="span3 well">
     <legend>Task info</legend>
@@ -62,19 +44,55 @@
         </li>
         {% if task.finish_dt %}<li><strong>Done</strong> at {{ task.dt.strftime('%d.%m.%Y %H:%M') }} by <a href="/p/{{ task.assigner.name }}/">{{ task.assigner.name }}</a></li>{% endif %}
     </ul>
+    <legend>Project crew</legend>
+        <ul id="array_member_handler"></ul>
+    <legend>Tags</legend>
+        <ul id="array_tag_handler"></ul>
   </div>
 </div>
 
 
 <script type="text/javascript" charset="utf-8">
-
-$('#task-title').editable();
-$('#task-ass').editable();
-$('#task-ass').on('update', function(e, editable) {
-    $("#ass-link").attr("href", "/p/" + editable.value + '/')
+$("#array_member_handler").tagHandler({
+    getData: { action: 'get_persons', task: '{{ task.project.code }}-{{ task.task_eid }}'},
+    getURL: '/_ajax/',
+    updateData: { action: 'set_persons', task: '{{ task.project.code }}-{{ task.task_eid }}'},
+    updateURL: '/_ajax/',
+    assignedTags: [ {% for p in task.get_cc_persons() %} "{{ p.name }}"{% if not loop.last%},{% endif %} {% endfor %} ],
+    autocomplete: true,
+    initLoad: false,
+    minChars: 2,
+    allowAdd: false,
+    autoUpdate: true
 });
-$('#task-todo').editable();
+$("#array_tag_handler").tagHandler({
+    getData: { action: 'get_tags', task: '{{ task.project.code }}-{{ task.task_eid }}'},
+    getURL: '/_ajax/',
+    updateData: { action: 'set_tags', task: '{{ task.project.code }}-{{ task.task_eid }}'},
+    updateURL: '/_ajax/',
+    assignedTags: [ {% for t in task.get_tags() %} "{{ t.name }}"{% if not loop.last%},{% endif %} {% endfor %} ],
+    autocomplete: true,
+    initLoad: false,
+    minChars: 2,
+    autoUpdate: true
+});
 
+$("#array_member_handler li.tagItem").hover(
+  function () {
+    $(this).append($("<a href='/p/" + $(this).html() + "'> <i class='icon-info-sign'></i></a>"));
+  },
+  function () {
+    $(this).find("a:last").remove();
+  }
+);
+$("#array_tag_handler li.tagItem").hover(
+  function () {
+    $(this).append($("<a href='/f/?tag=" + $(this).html() + "'> <i class='icon-search'></i></a>"));
+  },
+  function () {
+    $(this).find("a:last").remove();
+  }
+);
 </script>
 
 {% endblock %}

@@ -50,6 +50,21 @@ class BaseHandler(webapp2.RequestHandler):
         task = Task.gql("WHERE task_eid = :1 AND project = :2", task_eid, project.key()).get()
         return task
 
+    def update_tags(self, tags, obj):
+        st = set()
+        for t in tags:
+            tag = self.get_tag(t)
+            if tag:
+                st.add(tag.key())
+            else:
+                t = escape(t).lower()
+                tag = Tag(name=t)
+                tag.save()
+                st.add(tag.key())
+        obj.tags = list(st)
+        obj.save()
+
+
 
 class ProjectHandler(BaseHandler):
     def get(self, project_code):
@@ -122,33 +137,35 @@ class FilterHandler(BaseHandler):
 
 class AjaxHandler(BaseHandler):
     def get(self):
-        if self.request.get('action') == 'get_persons':
+        if self.request.get('action') == 'get_persons': 
             persons = [p.name for p in Person.all() if p.name.find(self.request.get('q')) > -1]
             self.write_json({'availableTags': persons})
         elif self.request.get('action') == 'get_tags':
             tags = [t.name for t in Tag.all() if t.name.find(self.request.get('q')) > -1]
             self.write_json({'availableTags': tags})
     def post(self):
-        if self.request.get('action') == 'set_persons':
+        if self.request.get('action') == 'set_persons' and self.request.get('project'):
+            # project members
             project = self.get_project(self.request.get('project'))
             st = set([self.get_person(p).key() for p in self.request.get_all('tags[]')])
             project.members = list(st)
             project.save()
-        elif self.request.get('action') == 'set_tags':
+        elif self.request.get('action') == 'set_persons' and self.request.get('task'):
+            # task cc
+            project_code, task_eid = self.request.get('task').split('-')
+            task = self.get_task(task_eid, project_code)
+            st = set([self.get_person(p).key() for p in self.request.get_all('tags[]')])
+            task.cc_persons = list(st)
+            task.save()
+        elif self.request.get('action') == 'set_tags' and self.request.get('project'):
+            # project tags
             project = self.get_project(self.request.get('project'))
-            st = set()
-            for t in self.request.get_all('tags[]'):
-                tag = self.get_tag(t)
-                if tag:
-                    st.add(tag.key())
-                else:
-                    t = escape(t).lower()
-                    tag = Tag(name=t)
-                    tag.save()
-                    st.add(tag.key())
-            project.tags = list(st)
-            project.save()
-
+            self.update_tags(self.request.get_all('tags[]'), project)
+        elif self.request.get('action') == 'set_tags' and self.request.get('task'):
+            # task tags
+            project_code, task_eid = self.request.get('task').split('-')
+            task = self.get_task(task_eid, project_code)
+            self.update_tags(self.request.get_all('tags[]'), task)
 
 class TaskHandler(BaseHandler):
     def get(self, project_code, task_eid):
